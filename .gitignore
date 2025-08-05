@@ -1,0 +1,21 @@
+# Các thư mục build
+build/
+.pio/
+.vscode/
+.ccls-cache/
+
+# Tệp cấu hình dự án cá nhân
+sdkconfig.old
+
+# Các tệp biên dịch và liên kết
+*.bin
+*.elf
+*.map
+
+# Các tệp hệ điều hành
+.DS_Store
+Thumbs.db
+
+# Các tệp đăng nhập và backup
+*.log
+*.bak
