@@ -11,7 +11,7 @@ QueueHandle_t x_NVS_To_Center_Queue = NULL;
 const char key_list_NVS[][30] = {
   "NVS_Param",
 };
-center_param_typedef default_param= {.mode = CL01_MODE};
+center_param_typedef default_param= {.mode = SA_MODE};
 
 /* Private function prototypes -----------------------------------------------*/
 static void NVS_Task(void *arg);

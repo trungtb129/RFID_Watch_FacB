@@ -31,75 +31,21 @@ extern "C" {
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 extern lv_obj_t * ui_Screen1;
-extern lv_obj_t * ui_Color11;
-extern lv_obj_t * ui_Color21;
-extern lv_obj_t * ui_Color31;
-extern lv_obj_t * ui_Color41;
-extern lv_obj_t * ui_Color51;
-extern lv_obj_t * ui_Color61;
-extern lv_obj_t * ui_Color11g;
-extern lv_obj_t * ui_Color21g;
-extern lv_obj_t * ui_Color31g;
-extern lv_obj_t * ui_Color41g;
-extern lv_obj_t * ui_Color51g;
-extern lv_obj_t * ui_Color61g;
-extern lv_obj_t * ui_WireText1;
-extern lv_obj_t * ui_WireText2;
-extern lv_obj_t * ui_WireText3;
-extern lv_obj_t * ui_WireText4;
-extern lv_obj_t * ui_WireText5;
-extern lv_obj_t * ui_WireText6;
-extern lv_obj_t * ui_Locatext1;
-extern lv_obj_t * ui_Locatext2;
-extern lv_obj_t * ui_Locatext3;
-extern lv_obj_t * ui_Locatext4;
-extern lv_obj_t * ui_Locatext5;
-extern lv_obj_t * ui_Locatext6;
+extern lv_obj_t * ui_Color1;
+extern lv_obj_t * ui_Color1g;
 extern lv_obj_t * ui_Wifi;
-extern lv_obj_t * ui_WifiStatus;
 extern lv_obj_t * ui_Wifi4;
-extern lv_obj_t * ui_WireCount;
+extern lv_obj_t * ui_WifiStatus;
 extern lv_obj_t * ui_TCP;
-extern lv_obj_t * ui_ModeCL;
 extern lv_obj_t * ui_TCPStatus;
 extern lv_obj_t * ui_Bat;
 extern lv_obj_t * ui_PercentBat;
+extern lv_obj_t * ui_SAText;
+extern lv_obj_t * ui_GroupText;
 extern lv_obj_t * ui_Blink1;
 extern lv_obj_t * ui_Blink2;
-extern lv_obj_t * ui_BlinkLoca;
-extern lv_obj_t * ui_WireCheckLoca;
-extern lv_obj_t * ui_Mode;
-extern lv_obj_t * ui_Color12;
-extern lv_obj_t * ui_Color22;
-extern lv_obj_t * ui_Color32;
-extern lv_obj_t * ui_Color42;
-extern lv_obj_t * ui_Color52;
-extern lv_obj_t * ui_Color62;
-extern lv_obj_t * ui_Color12g;
-extern lv_obj_t * ui_Color22g;
-extern lv_obj_t * ui_Color32g;
-extern lv_obj_t * ui_Color42g;
-extern lv_obj_t * ui_Color52g;
-extern lv_obj_t * ui_Color62g;
-extern lv_obj_t * ui_Color13;
-extern lv_obj_t * ui_Color23;
-extern lv_obj_t * ui_Color33;
-extern lv_obj_t * ui_Color43;
-extern lv_obj_t * ui_Color53;
-extern lv_obj_t * ui_Color63;
-extern lv_obj_t * ui_Color13g;
-extern lv_obj_t * ui_Color23g;
-extern lv_obj_t * ui_Color33g;
-extern lv_obj_t * ui_Color43g;
-extern lv_obj_t * ui_Color53g;
-extern lv_obj_t * ui_Color63g;
-extern lv_obj_t * ui_PanelMode;
-extern lv_obj_t * ui_Highlight1;
-extern lv_obj_t * ui_Highlight2;
-extern lv_obj_t * ui_Highlight3;
-extern lv_obj_t * ui_Highlight4;
-extern lv_obj_t * ui_Highlight5;
-extern lv_obj_t * ui_Highlight6;
+extern lv_obj_t * ui_ModeCL;
+extern lv_obj_t * ui_WireCount;
 
 
 
@@ -109,9 +55,7 @@ extern lv_obj_t * ui_Highlight6;
 
 void ui_init(void);
 void lcd_reset_daydien_text(uint8_t index);
-void lcd_set_daydien_text(wire_infor* DayDien, uint8_t index);
-void lcd_set_daydienCL_text(wire_infor* DayDien, uint8_t index);
-void lcd_reset_daydienCL_text(uint8_t index);   
+void lcd_set_daydien_text(wire_infor* DayDien, uint8_t index, Work_Mode Mode);
 void lcd_set_wifi_rssi (int8_t rssi) ;
 
 void lcd_set_socket_status(uint8_t status);
@@ -134,15 +78,9 @@ void set_ShowObject(lv_obj_t * ui_Object);
 
 void lcd_set_bat_percent (int8_t bat);
 void lcd_set_wifi_color (uint8_t isConnectedWifi, int8_t rssi) ;
-void lcd_set_mode (operationMode_t mode);
-void highlight_item(int lcd_count1);
-void HideHighlight_item(void);
+
 void lcd_aliveWire (int8_t wireCount) ;
-char* add_marker(const char *input);
-char* add_marker_dot(const char *input);
-char* get_substring_9_10(const char *input);
-char* concat_three_strings(const char* s1, const char* s2, const char* s3);
-const char* get_first_token(const char* input);
+
 
 ScreenCL_Mode get_screen_mode(const char* code);
 #ifdef __cplusplus

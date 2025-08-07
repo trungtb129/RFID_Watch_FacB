@@ -166,24 +166,33 @@ void CopyBuffToStruct (wire_infor *wires, char Buffer[MAX_FIELDS][MAX_LENGTH]) {
         // strcpy(wires->CartNo, Buffer[14]);
         // strcpy(wires->comment, Buffer[15]);
 
-        //Cấu trúc phản hồi mới từ ngày 28.03.2025
-        strcpy(wires->status_card, Buffer[0]);
-        strcpy(wires->serial, Buffer[1]);
-        strcpy(wires->line, Buffer[2]);
-        strcpy(wires->PartNumber, Buffer[3]);
-        strcpy(wires->WireType, Buffer[4]);
-        strcpy(wires->WireSize, Buffer[5]);
-        strcpy(temp_color, Buffer[6]);
+        // //Cấu trúc phản hồi mới từ ngày 28.03.2025
+        // strcpy(wires->status_card, Buffer[0]);
+        // strcpy(wires->serial, Buffer[1]);
+        // strcpy(wires->line, Buffer[2]);
+        // strcpy(wires->PartNumber, Buffer[3]);
+        // strcpy(wires->WireType, Buffer[4]);
+        // strcpy(wires->WireSize, Buffer[5]);
+        // strcpy(temp_color, Buffer[6]);
+        // splitString(temp_color, &wires->colors);
+        // strcpy(wires->length, Buffer[7]);
+        // strcpy(wires->group, Buffer[8]);
+        // strcpy(wires->WO, Buffer[9]);
+        // strcpy(wires->lot, Buffer[10]);
+        // strcpy(wires->location, Buffer[11]);
+        // strcpy(wires->factory, Buffer[12]);
+        // strcpy(wires->method, Buffer[13]);
+        // strcpy(wires->CartNo, Buffer[14]);
+        // strcpy(wires->comment, Buffer[15]);
+
+        //Cấu trúc phản hồi bên nhà máy B
+        strcpy(wires->status_card, Buffer[0]); //0
+        strcpy(wires->serial, Buffer[1]);//1
+        strcpy(temp_color, Buffer[2]);//2
         splitString(temp_color, &wires->colors);
-        strcpy(wires->length, Buffer[7]);
-        strcpy(wires->group, Buffer[8]);
-        strcpy(wires->WO, Buffer[9]);
-        strcpy(wires->lot, Buffer[10]);
-        strcpy(wires->location, Buffer[11]);
-        strcpy(wires->factory, Buffer[12]);
-        strcpy(wires->method, Buffer[13]);
-        strcpy(wires->CartNo, Buffer[14]);
-        strcpy(wires->comment, Buffer[15]);
+        strcpy(wires->group, Buffer[3]);//3
+        strcpy(wires->Sa, Buffer[4]);//4
+        strcpy(wires->comment, Buffer[5]);//5
 
         // printf("\nCHECK LOG1: %s\n", Buffer[8]);
         // printf("\nCHECK LOG1: %s\n", wires->group);
@@ -242,53 +251,12 @@ int TachData(char DataFromServer[]) {
 			
 		} else {
 			printf("Dont contain ';'.\n");
-
-            #if 0   /* NoteTestSuMi */
-            offset_index = strlen(&DataFromServer[prev_index]);
-			printf("End Offset index: %d\n", offset_index);
-            if (offset_index == 0)
-            {
-                break;
-            }
-            
-			memset(str,0,sizeof(str));
-			memcpy(str,&DataFromServer[prev_index], offset_index);
-			prev_index += offset_index + 1;
-
-			char *field;
-			
-			char *statusEnd = strchr(str, ']') + 1;
-			
-			strncpy(Buffer[i][0], str, 4);
-			
-			int j = 1;
-			field = strtok(statusEnd, ",");
-			while (field != NULL && j < MAX_FIELDS) {
-				strncpy(Buffer[i][j], field, MAX_LENGTH - 1); // LF0u ta;+ng giC! tra; vC o buffer
-				Buffer[i][j][MAX_LENGTH - 1] = '\0'; // Da:#m ba:#o ka:?t thC:c chua;i
-				field = strtok(NULL, ",");
-				j++;
-			}
-			
-			i++;
-            #endif
-
 			break; 
 		}
 	}
 
 
 	MaxChamPhay= i;
-	// printf("MaxChamPhay %d\n", MaxChamPhay);
-
-	// for(int index=0; index<MaxChamPhay; index++) {
-	// 	for(int j=0; j<MAX_FIELDS; j++) {
-	// 		if (strlen(Buffer[index][j]) > 0) { //
-	// 			printf("  Field %d: %s\n", j, Buffer[index][j]);
-	// 		}
-	// 	}
-	// 	printf("\n");
-	// }
 
     for(int index=0;index<MaxChamPhay;index++) {
         CopyBuffToStruct(&wires[index],Buffer[index]);
@@ -299,25 +267,12 @@ int TachData(char DataFromServer[]) {
         printf("Wires Info %d:\n", index + 1);
         printf("  Status Card: %s\n", wires[index].status_card);
         printf("  Serial: %s\n", wires[index].serial);
-        printf("  Line: %s\n", wires[index].line);
-        printf("  PartNumber: %s\n", wires[index].PartNumber);
-        printf("  Wire type: %s\n", wires[index].WireType);
-        printf("  Wire size: %s\n", wires[index].WireSize);
-
         printf("Number of color pairs: %d\n", wires[index].colors.color_count);
         for (int i = 0; i < wires[index].colors.color_count; i++) {
             printf("Main color %d: %s, Sub color %d: %s\n", i + 1, wires[index].colors.color[i].main_color, i + 1, wires[index].colors.color[i].sub_color);
         }
-
-        printf("  Length: %s\n", wires[index].length);
         printf("  Group: %s\n", wires[index].group);
-        printf("  WO: %s\n", wires[index].WO);
-        printf("  Lot: %s\n", wires[index].lot);
-
-        printf("  Location: %s\n", wires[index].location);
-        printf("  Factory: %s\n, ", wires[index].factory);
-        printf("  Method: %s\n, ", wires[index].method);
-        printf("  Cart no: %s\n, ", wires[index].CartNo);
+        printf("  Sa: %s\n", wires[index].Sa);
         printf("  Comment: %s\n, ", wires[index].comment);
 
         printf("\n");
@@ -724,14 +679,14 @@ static void TCP_IP_CLIENT_SEND_task(void *arg)  {
                                 ESP_LOGI(TAG, "Socket: Send Location + WireTag to Server, nums=%d, data len=%d, data=%s.\n", epcCount, strlen(sendBuffer), sendBuffer);
                                 //Nối thêm mã công đoạn
                                 char result[280] = {0};
-                                if(xTCP_CenterParam.mode == CL01_MODE)
+                                if(xTCP_CenterParam.mode == SA_MODE || xTCP_CenterParam.mode == GROUP_MODE || xTCP_CenterParam.mode == SA_GROUP_MODE)
                                 {
                                     sprintf(result, "%s:%s", PROCESS_CODE, sendBuffer);
                                 }
-                                else if(xTCP_CenterParam.mode == CL03_MODE)
-                                {
-                                    sprintf(result, "%s:%s", PROCESS_CODE_CL, sendBuffer);
-                                }
+                                // else if(xTCP_CenterParam.mode == CL03_MODE)
+                                // {
+                                //     sprintf(result, "%s:%s", PROCESS_CODE_CL, sendBuffer);
+                                // }
                                 err = send(sock, result, strlen(result), 0);
 
                                 if (err < 0) {
@@ -767,14 +722,15 @@ static void TCP_IP_CLIENT_SEND_task(void *arg)  {
                             //Nối thêm mã công đoạn
                             char result[280] = {0};
                             // sprintf(result, "%s:%s", PROCESS_CODE, sendBuffer);
-                            if(xTCP_CenterParam.mode == CL01_MODE)
-                                {
-                                    sprintf(result, "%s:%s", PROCESS_CODE, sendBuffer);
-                                }
-                                else if(xTCP_CenterParam.mode == CL03_MODE)
-                                {
-                                    sprintf(result, "%s:%s", PROCESS_CODE_CL, sendBuffer);
-                                }
+                            // if(xTCP_CenterParam.mode == CL01_MODE)
+                            //     {
+                            //         sprintf(result, "%s:%s", PROCESS_CODE, sendBuffer);
+                            //     }
+                                // else if(xTCP_CenterParam.mode == CL03_MODE)
+                                // {
+                                //     sprintf(result, "%s:%s", PROCESS_CODE_CL, sendBuffer);
+                                // }
+                                sprintf(result, "%s:%s", PROCESS_CODE, sendBuffer);
                             ESP_LOGI(TAG, "Socket: Send WireTags to Server, nums=%d, data len=%d, data=%s\n", epcCount, len_sendBuffer, result);
                             err = send(sock, result, strlen(result), 0);
                         }
@@ -919,18 +875,6 @@ static void TCP_IP_CLIENT_RECV_task(void *arg)  {
                                     for(int CountChamPhay = 0; CountChamPhay < MaxChamPhay; CountChamPhay++) {
                                         if(x_Card_2_LCD_Task_Queue != NULL) {
                                             xQueueSend(x_Card_2_LCD_Task_Queue, &wires[CountChamPhay], 10 / portTICK_PERIOD_MS);
-                                            // CARD tempTCPCard;
-                                            // memset(&tempTCPCard, 0, sizeof(CARD));
-                                            // memcpy(tempTCPCard.epc, wires[CountChamPhay].serial, MAX_EPC_LENGTH);
-                                            // tempTCPCard.result_cards = 1;
-                                            // //Nếu đã nhận được thông tin, gửi trở lại Task UHF-RFID để phân biệt thẻ có hay không có thông tin
-                                            // xQueueSend(x_Server_2_UHF_RFID_Task, &tempTCPCard, 10 / portTICK_PERIOD_MS);
-                                            // ESP_LOGW(TAG, "Gui tro lai UHF-RFID: %s", (char*)tempTCPCard.epc);
-                                            // Lưu lại vào mảng chống trùng lặp
-                                            // strcpy((char*)checkUnDuplicateCardToServer[checkUnDuplicateCardToServer_Count++].epc, wires[CountChamPhay].serial);
-                                            // checkUnDuplicateCardToServer_Count = checkUnDuplicateCardToServer_Count % SOCKET_CHECK_DUPLICATE_SIZE;
-                                            // printf("\nTCP: Dem bien count: %d\n", CountChamPhay);
-                                            // vTaskDelay(10 / portTICK_PERIOD_MS);
                                         }
                                     }
                                     // Receive OK
@@ -974,20 +918,9 @@ static void TCP_IP_CLIENT_RECV_task(void *arg)  {
                                     for(int CountChamPhay = 0; CountChamPhay < MaxChamPhay; CountChamPhay++) {
                                         if(x_Card_2_LCD_Task_Queue != NULL) {
                                             //
-                                            wires[CountChamPhay].location[0] = '?';
-                                            wires[CountChamPhay].location[1] = 0X00;
+                                            // wires[CountChamPhay].location[0] = '?';
+                                            // wires[CountChamPhay].location[1] = 0X00;
                                             xQueueSend(x_Card_2_LCD_Task_Queue, &wires[CountChamPhay], 10 / portTICK_PERIOD_MS);
-                                            // CARD tempTCPCard;
-                                            // memset(&tempTCPCard, 0, sizeof(CARD));
-                                            // memcpy(tempTCPCard.epc, wires[CountChamPhay].serial, MAX_EPC_LENGTH);
-                                            // tempTCPCard.result_cards = 1;
-                                            // //Nếu đã nhận được thông tin, gửi trở lại Task UHF-RFID để phân biệt thẻ có hay không có thông tin
-                                            // xQueueSend(x_Server_2_UHF_RFID_Task, &tempTCPCard, 10 / portTICK_PERIOD_MS);
-                                            // ESP_LOGW(TAG, "Gui tro lai UHF-RFID: %s", (char*)tempTCPCard.epc);
-                                            // Lưu lại vào mảng chống trùng lặp
-                                            // strcpy((char*)checkUnDuplicateCardToServer[checkUnDuplicateCardToServer_Count++].epc, wires[CountChamPhay].serial);
-                                            // checkUnDuplicateCardToServer_Count = checkUnDuplicateCardToServer_Count % SOCKET_CHECK_DUPLICATE_SIZE;
-                                            // printf("\nTCP: Dem bien count: %d\n", CountChamPhay);
                                             vTaskDelay(10 / portTICK_PERIOD_MS);
                                         }
                                     }

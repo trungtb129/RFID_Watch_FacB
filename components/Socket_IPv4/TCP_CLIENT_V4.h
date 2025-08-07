@@ -26,7 +26,7 @@
 
 #define SIZE_OF_RX_TCP_BUFFER 1024
 
-#define PROCESS_CODE "CL00"
+#define PROCESS_CODE "SA01"
 #define PROCESS_CODE_CL "CL02"
 
 typedef struct {

@@ -86,7 +86,7 @@
  #define EXAMPLE_LCD_PARAM_BITS         8
  
  #define EXAMPLE_LVGL_TICK_PERIOD_MS    2
- #define EXAMPLE_LVGL_TASK_MAX_DELAY_MS 50
+ #define EXAMPLE_LVGL_TASK_MAX_DELAY_MS 70
  #define EXAMPLE_LVGL_TASK_MIN_DELAY_MS 30
  #define EXAMPLE_LVGL_TASK_STACK_SIZE   (10 * 1024)
  #define EXAMPLE_LVGL_TASK_PRIORITY     (configMAX_PRIORITIES - 1)
@@ -330,453 +330,9 @@
             }
             // ESP_LOGI(TAG, "Mode: %d", xLCD_CenterParam.mode);
             Check_ModeCL_Screen(xLCD_CenterParam.mode);
-#if 1 //CL01 Mode                    
-        if(xLCD_CenterParam.mode == CL01_MODE) 
-        {
-            #if 1 //CL01 Mode
-            
-            // current_tick = xTaskGetTickCount();
-
-            // if (last_tick != 0) {
-            //     period_tick = current_tick - last_tick;
-            //     printf("Task cycle time: %lu ticks\n", (unsigned long)period_tick);
-            // }
-
-            // last_tick = current_tick;
-
-            //Nhận thông tin từ Task Center 
-            if(x_Center_Infor_Queue != NULL) {
-                if(xQueuePeek(x_Center_Infor_Queue, &xLCD_CenterInfor, pdMS_TO_TICKS(10)) == pdTRUE) { 
-                    isGetCenterInforOK = 1;
-                }
-                else {
-                    isGetCenterInforOK = 0;
-                }
-            }
-    
-            static workMode_t oldWorkMode = {
-                .operationMode = IN_MODE,
-            };
-            //Kiểm tra sự thay đổi chế độ làm việc
-            if(oldWorkMode.operationMode != xLCD_CenterInfor.operationMode) {
-                //Nếu chuyển từ OUT Mode sang IN Mode
-                if(oldWorkMode.operationMode == OUT_MODE && xLCD_CenterInfor.operationMode == IN_MODE) {
-                    //Làm mới mảng quản lý thông tin các thẻ
-                    memset(DataWireReceiveArr, 0, sizeof(DataWireReceiveArr));
-                    DataWireReceiveArr_Index = 0;
-                    memset(LCD_cardInfo, 0, sizeof(LCD_cardInfo));
-                    memset(display_wires, 0, sizeof(display_wires));
-                    //Clear toàn bộ thẻ trên màn hình
-                    for(uint8_t lcd_count = 0; lcd_count < 6; lcd_count++) {
-                        lcd_reset_daydien_text(lcd_count);
-                    }
-                    //Reset biến kiểm tra HighLight
-                    isNeedHighLightWires = 0;
-                }
-                //Nếu chuyển từ IN Mode sang OUT Mode
-                else if(oldWorkMode.operationMode == IN_MODE && xLCD_CenterInfor.operationMode == OUT_MODE) {
-                    //Kiểm tra trong các thẻ hiển thị có trùng màu dây không?
-                    //Kiểm tra các thẻ dây đang có trên màn hình
-                    for(uint8_t lcd_count = 0; lcd_count < 6; lcd_count++) {
-                        if(LCD_cardInfo[lcd_count].isOnScreen == 1) {
-                            //Kiểm tra các thẻ dây đang có trên màn hình
-                            for(uint8_t lcd_count1 = 0; lcd_count1 < 6; lcd_count1++) {
-                                if(LCD_cardInfo[lcd_count1].isOnScreen == 1 && lcd_count1 != lcd_count) {
-                                    //Nếu trùng màu nhau
-                                    if(memcmp(&LCD_cardInfo[lcd_count].WireInfo.colors, &LCD_cardInfo[lcd_count1].WireInfo.colors, sizeof(ColorPairs)) == 0) {
-                                        isNeedHighLightWires = 1;   //Cần highlight màu dây
-                                    }
-                                }
-                            }
-                        }  
-                    }
-                }
-                // Nếu chuyển chế độ từ Work Mode sang SLEEP Mode
-                if(oldWorkMode.operationMode != SLEEP_MODE && xLCD_CenterInfor.operationMode == SLEEP_MODE) {
-                    ESP_LOGI(TAG, "Turn off LCD backlight");
-                    // gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_OFF_LEVEL);
-                    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 0.0));
-                    screen_BrightnessPercentage = 0;
-                    // Update duty to apply the new value
-                    ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
-                    if(x_Card_2_LCD_Task_Queue != NULL) {
-                        xQueueReset(x_Card_2_LCD_Task_Queue); 
-                    }   
-                }
-                //Nếu chuyển chế độ từ SLEEP Mode sang Work Mode
-                if(oldWorkMode.operationMode == SLEEP_MODE && xLCD_CenterInfor.operationMode != SLEEP_MODE) {
-                    // gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);
-                    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 8192 * xLCD_CenterInfor.screenBrightnessPercentage / 100.0));
-                    screen_BrightnessPercentage = xLCD_CenterInfor.screenBrightnessPercentage;
-                    // Update duty to apply the new value
-                    ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
-                }
-                oldWorkMode.operationMode = xLCD_CenterInfor.operationMode;
-            }
-    
-            if(xLCD_CenterInfor.operationMode == SLEEP_MODE) {    
-                vTaskDelay(pdMS_TO_TICKS(5000)); // Delay 5 giây
-                continue;
-            } else {
-                
-            }
-    
-            //Cập nhật độ sáng màn hình nếu có sự thay đổi
-            if(screen_BrightnessPercentage != xLCD_CenterInfor.screenBrightnessPercentage) {
-                // gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);
-                ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 8192 * xLCD_CenterInfor.screenBrightnessPercentage / 100.0));
-                screen_BrightnessPercentage = xLCD_CenterInfor.screenBrightnessPercentage;
-                // Update duty to apply the new value
-                ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
-            }
-    
-                    
-            // Lock the mutex due to the LVGL APIs are not thread-safe
-            if (example_lvgl_lock(-1)) {
-                task_delay_ms = lv_timer_handler();
-            
-                if(isGetCenterInforOK == 1) {
-                    //Cập nhật thông tin kết nối wifi
-                    wifi_info.rssi = xLCD_CenterInfor.wifiStatus.rssi;
-                    wifi_info.isConnectedWifi = xLCD_CenterInfor.wifiStatus.isConnectedWifi;
-                    lcd_set_wifi_color(wifi_info.isConnectedWifi, wifi_info.rssi);
-                    lcd_set_wifi_rssi(wifi_info.rssi);
-                    //Cập nhật thông tin kết nối Socket server
-                    lcd_socketStatus = xLCD_CenterInfor.socketStatus;
-                    lcd_set_socket_status(lcd_socketStatus.status);
-                    // Cập nhật thông tin phần trăm pin
-                    lcd_set_bat_percent(xLCD_CenterInfor.batteryCapacity);
-                    // Cập nhật trạng thái chế độ
-                    lcd_set_mode(xLCD_CenterInfor.operationMode);
-                    //Cập nhật số thẻ trên màn hình
-                    lcd_aliveWire(xLCD_CenterInfor.aliveWireCount);
-
-                }
-    
-                
-                
-                //Nhận mảng chứa các thẻ đang alive
-                if(x_AliveCard_2_LCD_Task_Queue != NULL) {
-                    xQueuePeek(x_AliveCard_2_LCD_Task_Queue, LCD_aliveCardArr, pdMS_TO_TICKS(10));
-                }
-    
-    
-                static uint8_t toggleScreenOneTime;
-
-
-                if (x_Card_2_LCD_Task_Queue != NULL) {
-                    while (xQueueReceive(x_Card_2_LCD_Task_Queue, &DataWireReceive, pdMS_TO_TICKS(10)) == pdTRUE) {
-                        if (x_Server_2_UHF_RFID_Task != NULL) {
-                            CARD tempTCPCard;
-                            memset(&tempTCPCard, 0, sizeof(CARD));
-                            memcpy(tempTCPCard.epc, DataWireReceive.serial, MAX_EPC_LENGTH);
-                            tempTCPCard.result_cards = 1;
-
-                            // Gửi dữ liệu trở lại Task UHF-RFID
-                            xQueueSend(x_Server_2_UHF_RFID_Task, &tempTCPCard, pdMS_TO_TICKS(10));
-                        }
-
-                        ESP_LOGW(TAG, "Hiển thị thông tin dây nhận được: %s, Color count: %d",
-                                DataWireReceive.serial, DataWireReceive.colors.color_count);
-
-                        if (_check_dup_display(display_wires, wireCount, &DataWireReceive) == true) {
-                            ESP_LOGW(TAG, "Dup response");
-                            continue;  // Bỏ qua hiển thị nếu trùng
-                        }
-
-                        memcpy(&DataWireReceiveArr[DataWireReceiveArr_Index++], &DataWireReceive, sizeof(wire_infor));
-                        DataWireReceiveArr_Index %= SIZEOF_ARR_CARD_INFOR_FROM_SERVER;
-
-                        // Cờ cho phép chuyển màn hình sau khi nhận dữ liệu mới
-                        isNeedToggleScreen = 1;
-                        toggleScreenOneTime = 0;
-
-                        // Tăng chỉ số đếm dây hiển thị
-                        wireCount = (wireCount + 1) % 6;
-                    }
-                }
-    
-                //     end_tick = xTaskGetTickCount();
-                //     duration = end_tick - start_tick;
-
-                // printf("Execution time: %lu ticks (%lu ms)\n",
-                //     (unsigned long)duration,
-                //     (unsigned long)(duration * portTICK_PERIOD_MS));
-
-                if(isNeedToggleScreen == 1) {
-                    
-                    if(toggleScreenOneTime == 0) {
-                        start_blink_effect(ui_Blink1, ui_Blink2);
-                        ESP_LOGW(TAG, "\nStart Toggle\n");
-                        toggleScreenOneTime = 1;
-                        checkTimeToggleScreen = xTaskGetTickCount();
-                    }
-                    //Xuất hiện trên màn hình 200ms
-                    if(toggleScreenOneTime == 1 && (xTaskGetTickCount() - checkTimeToggleScreen >= 100/ portTICK_PERIOD_MS)) {
-                        end_blink_effect(ui_Blink1, ui_Blink2);
-                        isNeedToggleScreen = 0;
-                        ESP_LOGW(TAG, "\nEnd Toggle\n");
-                    } 
-                    // if (toggleScreenOneTime == 1) {
-                    //     vTaskDelay(50 / portTICK_PERIOD_MS); // Giảm thời gian đợi xuống 100ms
-                    //     end_blink_effect(ui_Blink1, ui_Blink2);
-                    //     isNeedToggleScreen = 0;
-                    //     ESP_LOGW(TAG, "\nEnd Toggle\n");
-                    // }              
-                }
-    
-                char lcd_location[50] = {0};
-                if(xQueueLocation != NULL) {       
-                    if(xQueueReceive(xQueueLocation, lcd_location, pdMS_TO_TICKS(10)) == pdTRUE) {
-                        lv_label_set_text(ui_WireCheckLoca, "");
-                        // Gọi hàm start_blink_effect sau khi nhận dữ liệu mới từ TCP
-                        BlinkOK = 1;
-                        BlinkOKTime = 0;
-                    }
-                }
-
-                if(BlinkOK == 1) {
-                    
-                    if(BlinkOKTime == 0) {
-                        lv_label_set_text(ui_WireCheckLoca, lcd_location);
-                        start_blink_effect_OK();
-                        ESP_LOGW(TAG, "\nStart Toggle location\n");
-                        BlinkOKTime = 1;
-                        checkTimeToggleScreen = xTaskGetTickCount();
-                    }
-                    //Xuất hiện trên màn hình 200ms
-                    if(BlinkOKTime == 1 && (xTaskGetTickCount() - checkTimeToggleScreen >= 600/ portTICK_PERIOD_MS)) {
-                        lv_label_set_text(ui_WireCheckLoca, "");
-                        end_blink_effect_OK();
-                        BlinkOK = 0;
-                        ESP_LOGW(TAG, "\nEnd Toggle location\n");
-                    }               
-                }            
-    
-    
-                // //Hàm hiển thị mảng Alive - Debug
-                // for(uint8_t lcd_count = 0; lcd_count < SIZEOF_CHECK_ALIVE_CARD_ARR; lcd_count++) {
-                //     ESP_LOGW(TAG, "\nCheck alive card: %s Flag: %d\n", (char*)LCD_aliveCardArr[lcd_count].epc, LCD_aliveCardArr[lcd_count].isAlive);
-                // }
-    
-                //Xóa những màu tạm thời chuẩn bị cho chu kì hiển thị mới
-                for(uint8_t lcd_count = 0; lcd_count < 6; lcd_count++) {
-                    //Clear cờ phát hiện thẻ RSSI tốt nhất ở vòng lặp trước
-                    LCD_cardInfo[lcd_count].isTheBestRSSI = 0;
-                    if(LCD_cardInfo[lcd_count].isOnScreen == 1) {
-                        deleteTemporaryWireColor(&LCD_cardInfo[lcd_count].WireInfo);
-                    }    
-                }
-    
-                //Kiểm tra mảng những thẻ còn sống
-                for(uint8_t lcd_count = 0; lcd_count < SIZEOF_CHECK_ALIVE_CARD_ARR; lcd_count++) {
-                    //Nếu thẻ đó đang được đọc và đã có thông tin từ server
-                    if(LCD_aliveCardArr[lcd_count].isAlive == 1 && LCD_aliveCardArr[lcd_count].isHasInfor == 1 && LCD_aliveCardArr[lcd_count].isDuplicateInfor == 0 && LCD_aliveCardArr[lcd_count].epc[0] != 0x00) {
-                        uint8_t checkCardOnScreen = 0;
-                        //Kiểm tra xem thẻ sống có đang được hiển thị không, quét 6 thẻ đang trong mảng hiển thị
-                        for(uint8_t lcd_count1 = 0; lcd_count1 < 6; lcd_count1++) {
-                            if(LCD_cardInfo[lcd_count1].isOnScreen == 1 && strcmp((char*)LCD_aliveCardArr[lcd_count].epc, LCD_cardInfo[lcd_count1].WireInfo.serial) == 0
-                            && LCD_cardInfo[lcd_count1].WireInfo.serial[0] != 0x00) {
-                                checkCardOnScreen = 1;
-                                //Nếu là thẻ đang chiếm cờ RSSI tốt nhất thì cập nhật vào struct quản lý thẻ trên màn hình
-                                if(LCD_aliveCardArr[lcd_count].theBestRSSIValue == 1) {
-                                    LCD_cardInfo[lcd_count1].isTheBestRSSI = 1;
-                                }
-                                //Nếu đã có rồi thì bỏ qua, không xử lý
-                                break;
-                            }
-                        }
-                        //Nếu chưa được hiển thị lên
-                        if(checkCardOnScreen == 0) {
-                            uint8_t isOnScreenOK = 0;
-                            //Kiểm tra thông tin của các thẻ đã hiển trị trên màn hình xem có thẻ nào trùng 4 trường thông tin không
-                            uint8_t isDuplicateInfor = 0;
-                            //Quét 6 vị trí hiển thị trên màn hình
-                            for(uint8_t lcd_count1 = 0; lcd_count1 < 6; lcd_count1++) {
-                                //Nếu tìm được vị trí trống, chưa hiển thị
-                                if(LCD_cardInfo[lcd_count1].isOnScreen == 0) {
-                                    //Lọc tìm thông tin trong mảng những thông tin nhận từ server
-                                    for(uint8_t lcd_count2 = 0; lcd_count2 < SIZEOF_ARR_CARD_INFOR_FROM_SERVER; lcd_count2++) {
-                                        // ESP_LOGW(TAG, "So sanh 2 the, the dang song so %d: %s, hasInfor: %d, isAlive: %d.", lcd_count,  (char*)LCD_aliveCardArr[lcd_count].epc, LCD_aliveCardArr[lcd_count].isHasInfor, LCD_aliveCardArr[lcd_count].isAlive);
-                                        // ESP_LOGW(TAG, "Mang chua thong tin the so %d: %s.",lcd_count2,  DataWireReceiveArr[lcd_count2].serial);
-                                        // ESP_LOGW(TAG, "Mang chua the tren man hinh: %s, isOnscreen: %d.", LCD_cardInfo[lcd_count1].WireInfo.serial, LCD_cardInfo[lcd_count1].isOnScreen);
-                                        // printf("\n---------\n");
-                                        //Tìm phần tử nào có mã EPC trùng với thẻ đang alive
-                                        if(strcmp((char*)LCD_aliveCardArr[lcd_count].epc, DataWireReceiveArr[lcd_count2].serial) == 0 && DataWireReceiveArr[lcd_count2].serial[0] != 0x00){
-                                            // Lọc những thẻ dây trùng 4 trường thông tin như sau
-                                            /*
-                                            1. Part number
-                                            2. Lô
-                                            3. WO
-                                            4. Group
-                                            */                        
-                                            //Kiểm tra thông tin của các thẻ đã hiển trị trên màn hình xem có thẻ nào trùng 4 trường thông tin không
-                                            for(uint8_t lcd_count3 = 0; lcd_count3 < 6; lcd_count3++) {
-                                                if(LCD_cardInfo[lcd_count3].isOnScreen == 1 &&
-                                                strcmp(DataWireReceiveArr[lcd_count2].PartNumber, LCD_cardInfo[lcd_count3].WireInfo.PartNumber) == 0 &&
-                                                strcmp(DataWireReceiveArr[lcd_count2].lot, LCD_cardInfo[lcd_count3].WireInfo.lot) == 0 &&
-                                                strcmp(DataWireReceiveArr[lcd_count2].WO, LCD_cardInfo[lcd_count3].WireInfo.WO) == 0 &&
-                                                strcmp(DataWireReceiveArr[lcd_count2].group, LCD_cardInfo[lcd_count3].WireInfo.group) == 0) 
-                                                {
-                                                    isDuplicateInfor = 1;
-                                                    ESP_LOGW(TAG, "Tag %s was duplicated 4 fields information!", DataWireReceiveArr[lcd_count2].serial);
-                                                    //Cộng màu cho dây đang hiển thị trên màn hình
-                                                    addColorToWireInfor(&LCD_cardInfo[lcd_count3].WireInfo, &DataWireReceiveArr[lcd_count2]);
-                                                    // if(x_LCD_2_UHFRFID_Task_Queue != NULL) {
-                                                    //     CARD tempLCDCard;
-                                                    //     strcpy((char*)tempLCDCard.epc, LCD_cardInfo[lcd_count3].WireInfo.serial);
-                                                    //     tempLCDCard.epc_len = strlen(LCD_cardInfo[lcd_count3].WireInfo.serial);
-                                                    //     xQueueSend(x_LCD_2_UHFRFID_Task_Queue, &tempLCDCard, pdMS_TO_TICKS(10));
-                                                    // }
-                                                    //Nếu là thẻ đang chiếm cờ RSSI tốt nhất thì cập nhật vào struct quản lý thẻ trên màn hình
-                                                    if(LCD_aliveCardArr[lcd_count].theBestRSSIValue == 1) {
-                                                        LCD_cardInfo[lcd_count3].isTheBestRSSI = 1;
-                                                    }
-                                                    break;  //Break khỏi vòng for lcd_count3
-                                                }
-                                            }
-                                            if(isDuplicateInfor == 1) { //Break khỏi vòng for lcd_count2
-                                                break;
-                                            }
-                                            
-                                            //Gán giá trị và hiển thị lên màn hình
-                                            // memset(&LCD_cardInfo[lcd_count1].WireInfo, 0, sizeof(wire_infor));
-                                            memcpy(&LCD_cardInfo[lcd_count1].WireInfo, &DataWireReceiveArr[lcd_count2], sizeof(wire_infor));
-                                            LCD_cardInfo[lcd_count1].isOnScreen = 1;
-                                            //Nếu là thẻ đang chiếm cờ RSSI tốt nhất thì cập nhật vào struct quản lý thẻ trên màn hình
-                                            if(LCD_aliveCardArr[lcd_count].theBestRSSIValue == 1) {
-                                                LCD_cardInfo[lcd_count1].isTheBestRSSI = 1;
-                                            }
-                                            
-                                            //Nếu tìm được vị trí hiển thị thì thoát vòng kiểm tra và hiển thị
-                                            isOnScreenOK = 1;
-                                            break;
-                                        }
-                                    }
-                                    
-                                }
-                                //Nếu đã hiển thị OK thì không tìm vị trí tiếp theo nữa
-                                if(isOnScreenOK == 1 || isDuplicateInfor == 1) { //Break khỏi vòng for lcd_count1
-                                    break;
-                                }
-                            } 
-                            if(isOnScreenOK == 0 && isDuplicateInfor == 0) { //Trùng thông tin thì không cần báo lỗi
-                                ESP_LOGE(TAG, "Khong tim thay thong tin hoac so the da toi da, khong the hien thi them");
-                                // //Hàm hiển thị mảng Alive - Debug
-                                // for(uint8_t lcd_count = 0; lcd_count < 6; lcd_count++) {
-                                //     ESP_LOGW(TAG, "\nCheck lcd card: %s Flag: %d\n", (char*)LCD_cardInfo[lcd_count].WireInfo.serial, LCD_cardInfo[lcd_count].isOnScreen);
-                                // }
-                            }
-                        }
-                    }
-                }
-    
-                //Kiểm tra các thẻ trên màn hình
-                for(uint8_t lcd_count = 0; lcd_count < 6; lcd_count++) {
-                    //Nếu gặp thẻ đang hiển thị thì kiểm ta
-                    if(LCD_cardInfo[lcd_count].isOnScreen == 1) {
-                        uint8_t checkCardAlive = 0; //Biến kiểm tra xem thẻ hiện trên màn hình còn sống không
-                        for(uint8_t lcd_count1 = 0; lcd_count1 < SIZEOF_CHECK_ALIVE_CARD_ARR; lcd_count1++) {
-                            //Nếu trùng thì giữ cho thẻ sôngs, loại bỏ trường hợp cả 2 mảng đều trống vẫn trả về giống nhau
-                            if(strcmp(LCD_cardInfo[lcd_count].WireInfo.serial, (char*)LCD_aliveCardArr[lcd_count1].epc) == 0 && LCD_aliveCardArr[lcd_count1].epc[0] != 0x00 && LCD_aliveCardArr[lcd_count1].isAlive == 1) {
-                                checkCardAlive = 1;
-                            }
-                        }
-                        //Nếu không trùng thẻ nào
-                        if(checkCardAlive == 0) {
-                            LCD_cardInfo[lcd_count].isOnScreen = 0;
-                            // memset(LCD_cardInfo[lcd_count].WireInfo, 0, sizeof(LCD_cardInfo[lcd_count].WireInfo)); 
-                            ESP_LOGE(TAG, "\nThe tren man hinh khong con ALive, tien hanh xoa the %s\n", LCD_cardInfo[lcd_count].WireInfo.serial);
-                        }
-                    }
-                }
-    
-                // //Hàm hiển thị mảng Alive - Debug
-                // for(uint8_t lcd_count = 0; lcd_count < 6; lcd_count++) {
-                //     ESP_LOGW(TAG, "\nCheck lcd card: %s Flag: %d\n", (char*)LCD_cardInfo[lcd_count].WireInfo.serial, LCD_cardInfo[lcd_count].isOnScreen);
-                // }
-    
-                /************************Thêm code hiển thị dây RSSI cao nhất ở đây************************************/
-    
-                //Biến lưu chỉ số hiển thị trên màn hình cần HighLight, khởi tạo bằng giá trị sai (không thể có)
-                uint8_t HighLightIndex = 10;
-                //Reset biến đếm số thẻ trên màn hình để bắt đầu đếm
-                LCDInfor.numberOfCardOnScreen = 0;
-                for(uint8_t lcd_count = 0; lcd_count < 6; lcd_count++) {
-                    if(LCD_cardInfo[lcd_count].isOnScreen == 1) {
-                        // Old: lcd_set_daydien_text(&LCD_cardInfo[lcd_count].WireInfo, lcd_count); // Gọi hàm để gửi dữ liệu sang queue hiển thị
-                        lcd_set_daydien_text(&LCD_cardInfo[lcd_count].WireInfo, LCDInfor.numberOfCardOnScreen); // Gọi hàm hiển thị thông tin thẻ dây
-                        if(LCD_cardInfo[lcd_count].isTheBestRSSI == 1) {
-                            HighLightIndex = LCDInfor.numberOfCardOnScreen;
-                        }
-                        LCDInfor.numberOfCardOnScreen ++;
-                        // ESP_LOGI(TAG, "\nThẻ đã lên màn hình\n");
-                    }
-                    else if(LCD_cardInfo[lcd_count].isOnScreen == 0) {
-                        lcd_reset_daydien_text(lcd_count); // Gọi hàm xoá thông tin thẻ dây
-                        // ESP_LOGW(TAG, "\nCheck Delete OnScreen card: %s Index: %d\n", (char*)LCD_cardInfo[lcd_count].WireInfo.serial, lcd_count);
-                    }
-                }
-                
-                set_numberCardOnScreen(LCDInfor.numberOfCardOnScreen);
-    
-                #if 1
-                if(isNeedHighLightWires == 1) {
-                    //Nếu tìm được thẻ cần HightLight
-                    if(HighLightIndex != 10) {
-                        printf("Highlighting LCD index: %d\n", HighLightIndex);
-                        highlight_item(HighLightIndex);  // Gọi hàm highlight với index tương ứng
-                    }
-                    //Nếu không tìm được thẻ cần HightLight
-                    else {
-                        HideHighlight_item();
-                    }
-                }
-                //Nếu không cần HighLight
-                else {
-                    HideHighlight_item();
-                }
-                #endif
-                #if 0
-                bool found = false;  // Cờ kiểm tra có thẻ nào được highlight không
-    
-                for (int lcd_count1 = 0; lcd_count1 < 6; lcd_count1++) {
-                    if (LCD_cardInfo[lcd_count1].isTheBestRSSI == 1) {
-                        highlight_item(lcd_count1);  // Highlight thẻ có RSSI tốt nhất
-                        found = true;  // Đánh dấu đã tìm thấy thẻ
-                        break;  // Chỉ highlight 1 thẻ
-                    }
-                }
-    
-                // Nếu không có thẻ nào có isTheBestRSSI == 1, xóa tất cả highlight
-                if (!found) {
-                    highlight_item(-1);
-                }
-                #endif
-    
-                if(x_LCD_2_Center_Task_Queue != NULL) {
-                    xQueueOverwrite(x_LCD_2_Center_Task_Queue, &LCDInfor);
-                }
-                // printf("\nLVGL Task is working!\n");
-    
-                // Release the mutex
-                example_lvgl_unlock();
-                // vTaskDelay(pdMS_TO_TICKS(50));
-            }
-            if (task_delay_ms > EXAMPLE_LVGL_TASK_MAX_DELAY_MS) {
-                task_delay_ms = EXAMPLE_LVGL_TASK_MAX_DELAY_MS;
-            } else if (task_delay_ms < EXAMPLE_LVGL_TASK_MIN_DELAY_MS) {
-                task_delay_ms = EXAMPLE_LVGL_TASK_MIN_DELAY_MS;
-            }
-
-            vTaskDelay(pdMS_TO_TICKS(task_delay_ms));
-        
-            #endif //end CL01 mode
-        }
-#endif //CL01 Mode
         /**************************************************************************************** */
-#if 1 //CL03 Mode
-        if(xLCD_CenterParam.mode == CL03_MODE) 
+#if 1 //FacB mode
+        if(xLCD_CenterParam.mode == SA_MODE || xLCD_CenterParam.mode == GROUP_MODE || xLCD_CenterParam.mode == SA_GROUP_MODE) 
         {
             #if 1 ///CL03 Mode
             
@@ -827,7 +383,7 @@
                     // Cập nhật thông tin phần trăm pin
                     lcd_set_bat_percent(xLCD_CenterInfor.batteryCapacity);
                     // Cập nhật trạng thái chế độ
-                    lcd_set_mode(xLCD_CenterInfor.operationMode);
+                    // lcd_set_mode(xLCD_CenterInfor.operationMode);
                     //Cập nhật số thẻ trên màn hình
                     lcd_aliveWire(xLCD_CenterInfor.aliveWireCount);
 
@@ -906,15 +462,16 @@
                 }
     
                 char lcd_location[50] = {0};
-                if(xQueueLocation != NULL) {       
-                    if(xQueueReceive(xQueueLocation, lcd_location, pdMS_TO_TICKS(10)) == pdTRUE) {
-                        lv_label_set_text(ui_WireCheckLoca, "");
-                        // Gọi hàm start_blink_effect sau khi nhận dữ liệu mới từ TCP
-                        BlinkOK = 1;
-                        BlinkOKTime = 0;
-                    }
-                }
+                // if(xQueueLocation != NULL) {       
+                //     if(xQueueReceive(xQueueLocation, lcd_location, pdMS_TO_TICKS(10)) == pdTRUE) {
+                //         lv_label_set_text(ui_WireCheckLoca, "");
+                //         // Gọi hàm start_blink_effect sau khi nhận dữ liệu mới từ TCP
+                //         BlinkOK = 1;
+                //         BlinkOKTime = 0;
+                //     }
+                // }
 
+                #if 0//Blink
                 if(BlinkOK == 1) {
                     
                     if(BlinkOKTime == 0) {
@@ -932,7 +489,7 @@
                         ESP_LOGW(TAG, "\nEnd Toggle location\n");
                     }               
                 }            
-    
+                #endif
     
                 // //Hàm hiển thị mảng Alive - Debug
                 // for(uint8_t lcd_count = 0; lcd_count < SIZEOF_CHECK_ALIVE_CARD_ARR; lcd_count++) {
@@ -1100,7 +657,7 @@
                 for(uint8_t lcd_count = 0; lcd_count < 6; lcd_count++) {
                     if(LCD_cardInfo[lcd_count].isOnScreen == 1) {
                         // Old: lcd_set_daydien_text(&LCD_cardInfo[lcd_count].WireInfo, lcd_count); // Gọi hàm để gửi dữ liệu sang queue hiển thị
-                        lcd_set_daydienCL_text(&LCD_cardInfo[lcd_count].WireInfo, LCDInfor.numberOfCardOnScreen); // Gọi hàm hiển thị thông tin thẻ dây
+                        lcd_set_daydien_text(&LCD_cardInfo[lcd_count].WireInfo, LCDInfor.numberOfCardOnScreen, xLCD_CenterParam.mode); // Gọi hàm hiển thị thông tin thẻ dây
                         if(LCD_cardInfo[lcd_count].isTheBestRSSI == 1) {
                             HighLightIndex = LCDInfor.numberOfCardOnScreen;
                         }
@@ -1108,14 +665,14 @@
                         // ESP_LOGI(TAG, "\nThẻ đã lên màn hình\n");
                     }
                     else if(LCD_cardInfo[lcd_count].isOnScreen == 0) {
-                        lcd_reset_daydienCL_text(lcd_count); // Gọi hàm xoá thông tin thẻ dây
+                        lcd_reset_daydien_text(lcd_count); // Gọi hàm xoá thông tin thẻ dây
                         // ESP_LOGW(TAG, "\nCheck Delete OnScreen card: %s Index: %d\n", (char*)LCD_cardInfo[lcd_count].WireInfo.serial, lcd_count);
                     }
                 }
                 
                 set_numberCardOnScreenCL(LCDInfor.numberOfCardOnScreen);
     
-                #if 1
+                #if 0//Bật highlight
                 if(isNeedHighLightWires == 1) {
                     //Nếu tìm được thẻ cần HightLight
                     if(HighLightIndex != 10) {

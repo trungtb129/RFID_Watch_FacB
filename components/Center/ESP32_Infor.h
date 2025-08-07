@@ -61,6 +61,7 @@ typedef struct {
 } wire_infor; 
 #endif
 
+#if 0//wireInfor FacA
 typedef struct {
     char status_card[6];//1
     char serial[MAX_EPC_LENGTH];//2
@@ -79,6 +80,19 @@ typedef struct {
     char CartNo[24];//15
     char comment[16];//16
 } wire_infor;
+#endif
+
+#if 1//wireInfor FacB
+typedef struct {
+    char status_card[6];//1
+    char serial[MAX_EPC_LENGTH];//2
+    ColorPairs colors;//3
+    char group[8];//4
+    char Sa[12];//5
+    char comment[20];//6
+} wire_infor;
+#endif
+
 
 //Struct quản lý các dây đang được hiển thị trên màn hình
 typedef struct {
@@ -151,9 +165,10 @@ typedef struct  {
 /************************************************/
 //Quản lý việc chuyển chế độ giữa line mode và sa mode
 typedef enum {
-    CL01_MODE = 0,
-    CL03_MODE,
-    CLMODEn,
+    SA_MODE = 0,
+    GROUP_MODE = 1,
+    SA_GROUP_MODE = 2,
+    WORK_MODEn,
 }  Work_Mode;
 
 typedef enum {

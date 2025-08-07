@@ -9,7 +9,7 @@
 /*
 Sumi wifi
 */
-#if 01
+#if 0
 #define ESP_WIFI_SSID "SHWS-RFID_Test"
 #define ESP_WIFI_PASS "Shws2025"
 
@@ -51,7 +51,7 @@ Sumi wifi
 #define UHF_ESP_STATIC_GW "10.0.12.1"
 #endif
 
-#if 0
+#if 01
 #define ESP_WIFI_SSID "CTY ROBOTICS AUBOT"
 #define ESP_WIFI_PASS "123456789"
 
@@ -146,7 +146,7 @@ Sumi wifi
 
 
 // Thời gian timeout - tức nếu vượt quá thời gian này (ms) mà không đọc lại sẽ xoá trạng thái ALive (Chỉ ở chế độ Out)
-#define CHECK_ALIVE_CARD_TIMEOUT 2000
+#define CHECK_ALIVE_CARD_TIMEOUT 1000
 
 // Thời gian đọc lặp lại cho thẻ, nếu quá thời gian này (ms) thì số lần đếm đọc lại được reset về 0
 #define SET_READ_TIMEOUT 5000
