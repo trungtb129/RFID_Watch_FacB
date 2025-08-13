@@ -9,7 +9,7 @@
 /*
 Sumi wifi
 */
-#if 0
+#if 0 //RFID FAC_A
 #define ESP_WIFI_SSID "SHWS-RFID_Test"
 #define ESP_WIFI_PASS "Shws2025"
 
@@ -49,7 +49,49 @@ Sumi wifi
 
 #define UHF_ESP_STATIC_SUBNET_MASK "255.255.255.0"
 #define UHF_ESP_STATIC_GW "10.0.12.1"
-#endif
+#endif //RFID FAC_A
+
+#if 0//RFID FAC_B
+#define ESP_WIFI_SSID "SHWS-RFID_Test"
+#define ESP_WIFI_PASS "RFID_FB_25@"
+
+// #define ESP_WIFI_SSID "Wifi6"
+// #define ESP_WIFI_PASS "18112000"
+
+#define HOST_IP_ADDR "10.0.12.2"
+// #define HOST_IP_ADDR "10.0.12.51"
+
+#define PORT 8888
+
+#define UHF_ESP_USING_STATIC_IP 1
+// #define UHF_ESP_STATIC_IP "10.0.12.30"
+// #define UHF_ESP_STATIC_IP "10.0.12.31" //ok
+// #define UHF_ESP_STATIC_IP "10.0.12.32"//ok
+// #define UHF_ESP_STATIC_IP "10.0.12.33"//ok
+// #define UHF_ESP_STATIC_IP "10.0.12.34"//ok
+// #define UHF_ESP_STATIC_IP "10.0.12.35"//ok
+// #define UHF_ESP_STATIC_IP "10.0.12.36" //ok
+// #define UHF_ESP_STATIC_IP "10.0.12.37" //
+// #define UHF_ESP_STATIC_IP "10.0.12.38" //
+// #define UHF_ESP_STATIC_IP "10.0.12.39" //ok
+// #define UHF_ESP_STATIC_IP "10.0.12.40" //ok
+// #define UHF_ESP_STATIC_IP "10.0.12.41"//
+// #define UHF_ESP_STATIC_IP "10.0.12.42   " //
+#define UHF_ESP_STATIC_IP "10.0.12.43" //ok
+// #define UHF_ESP_STATIC_IP "10.0.12.44" //ok
+// #define UHF_ESP_STATIC_IP "10.0.12.45"//ok
+// #define UHF_ESP_STATIC_IP "10.0.12.46" //
+// #define UHF_ESP_STATIC_IP "10.0.12.47" //ok
+// #define UHF_ESP_STATIC_IP "10.0.12.48" // ok
+// #define UHF_ESP_STATIC_IP "10.0.12.49"//ok
+// #define UHF_ESP_STATIC_IP "10.0.12.50"
+// #define UHF_ESP_STATIC_IP "10.0.12.51"
+
+
+
+#define UHF_ESP_STATIC_SUBNET_MASK "255.255.255.0"
+#define UHF_ESP_STATIC_GW "10.0.12.1"
+#endif//RFID FAC_B
 
 #if 01
 #define ESP_WIFI_SSID "CTY ROBOTICS AUBOT"

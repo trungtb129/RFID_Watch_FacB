@@ -46,6 +46,7 @@ extern lv_obj_t * ui_Blink1;
 extern lv_obj_t * ui_Blink2;
 extern lv_obj_t * ui_ModeCL;
 extern lv_obj_t * ui_WireCount;
+extern lv_obj_t * ui_ColorText;
 
 
 
@@ -80,8 +81,8 @@ void lcd_set_bat_percent (int8_t bat);
 void lcd_set_wifi_color (uint8_t isConnectedWifi, int8_t rssi) ;
 
 void lcd_aliveWire (int8_t wireCount) ;
-
-
+void concat_with_colon(const char* A, const char* B, char* out, size_t out_size);
+void concat_three_with_colon(const char* A, const char* B, const char* C, char* out, size_t out_size);
 ScreenCL_Mode get_screen_mode(const char* code);
 #ifdef __cplusplus
 } /*extern "C"*/

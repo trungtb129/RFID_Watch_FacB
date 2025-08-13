@@ -192,7 +192,8 @@ void CopyBuffToStruct (wire_infor *wires, char Buffer[MAX_FIELDS][MAX_LENGTH]) {
         splitString(temp_color, &wires->colors);
         strcpy(wires->group, Buffer[3]);//3
         strcpy(wires->Sa, Buffer[4]);//4
-        strcpy(wires->comment, Buffer[5]);//5
+        strcpy(wires->wire_type, Buffer[5]);//5
+        strcpy(wires->comment, Buffer[6]);//5
 
         // printf("\nCHECK LOG1: %s\n", Buffer[8]);
         // printf("\nCHECK LOG1: %s\n", wires->group);

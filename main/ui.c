@@ -28,6 +28,7 @@ lv_obj_t * ui_Blink1;
 lv_obj_t * ui_Blink2;
 lv_obj_t * ui_ModeCL;
 lv_obj_t * ui_WireCount;
+lv_obj_t * ui_ColorText;
 
 
 // CUSTOM VARIABLES

@@ -22,9 +22,9 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_bg_opa(ui_Screen1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Color1 = lv_obj_create(ui_Screen1);
-    lv_obj_set_width(ui_Color1, 228);
+    lv_obj_set_width(ui_Color1, 114);
     lv_obj_set_height(ui_Color1, 38);
-    lv_obj_set_x(ui_Color1, 0);
+    lv_obj_set_x(ui_Color1, 63);
     lv_obj_set_y(ui_Color1, 15);
     lv_obj_set_align(ui_Color1, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Color1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -34,9 +34,9 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_text_opa(ui_Color1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Color1g = lv_obj_create(ui_Screen1);
-    lv_obj_set_width(ui_Color1g, 228);
+    lv_obj_set_width(ui_Color1g, 114);
     lv_obj_set_height(ui_Color1g, 13);
-    lv_obj_set_x(ui_Color1g, 0);
+    lv_obj_set_x(ui_Color1g, 63);
     lv_obj_set_y(ui_Color1g, 15);
     lv_obj_set_align(ui_Color1g, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Color1g, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -171,7 +171,14 @@ void ui_Screen1_screen_init(void)
     lv_label_set_text(ui_WireCount, "0");
     lv_obj_set_style_text_font(ui_WireCount, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-
+    ui_ColorText = lv_label_create(ui_Screen1);
+    lv_obj_set_width(ui_ColorText, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_ColorText, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_ColorText, -58);
+    lv_obj_set_y(ui_ColorText, 13);
+    lv_obj_set_align(ui_ColorText, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_ColorText, "H:W-L");
+    lv_obj_set_style_text_font(ui_ColorText, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
 }
 
 #endif
@@ -388,6 +395,14 @@ void lcd_set_daydien_text(wire_infor* DayDien, uint8_t index, Work_Mode Mode) {
             lv_label_set_text(ui_SAText, DayDien->Sa);
             lv_label_set_text(ui_GroupText, DayDien->group);
         }
+
+        char color_buf[10]; // đủ lớn để chứa A:B
+        concat_three_with_colon( DayDien->colors.color->main_color,"-", DayDien->colors.color->sub_color,  color_buf, sizeof(color_buf));
+        char buffer[10]; // đủ lớn để chứa A:B
+        concat_with_colon( DayDien->wire_type, color_buf, buffer, sizeof(buffer));
+
+        lv_label_set_text(ui_ColorText, buffer);
+
         //Gán giá trị số màu dây
         wireColorCountArr[0] = DayDien->colors.color_count;
     }
@@ -399,12 +414,21 @@ void lcd_reset_daydien_text(uint8_t index) {
         lv_label_set_text(ui_GroupText,"");
         lv_obj_set_style_bg_color(ui_Color1, map_color(ui_Color1), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(ui_Color1g, map_color(ui_Color1g), LV_PART_MAIN | LV_STATE_DEFAULT);
-
+        lv_label_set_text(ui_ColorText, " ");
         //Gán giá trị số màu dây
         wireColorCountArr[index] = 0;
  
     }
    
+}
+
+void concat_with_colon(const char* A, const char* B, char* out, size_t out_size) {
+    // out_size là kích thước bộ nhớ out được cấp phát sẵn
+    snprintf(out, out_size, "%s:%s", A, B);
+}
+
+void concat_three_with_colon(const char* A, const char* B, const char* C, char* out, size_t out_size) {
+    snprintf(out, out_size, "%s%s%s", A, B, C);
 }
 
 
@@ -526,17 +550,17 @@ void set_numberCardOnScreenCL(uint8_t numberCard) {
         //Nếu thẻ chỉ có 1 màu
         if(wireColorCountArr[0] == 1) {
 
-            lv_obj_set_width(ui_Color1, 228);
+            lv_obj_set_width(ui_Color1, 114);
             lv_obj_set_height(ui_Color1, 38);
-            lv_obj_set_x(ui_Color1, 0);
+            lv_obj_set_x(ui_Color1, 63);
             lv_obj_set_y(ui_Color1, 15);
             //Hiển thị
             // lv_obj_set_style_bg_opa(ui_Color11, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
             set_ShowObject(ui_Color1);
 
-            lv_obj_set_width(ui_Color1g, 228);
+            lv_obj_set_width(ui_Color1g, 114);
             lv_obj_set_height(ui_Color1g, 13);
-            lv_obj_set_x(ui_Color1g, 0);
+            lv_obj_set_x(ui_Color1g, 63);
             lv_obj_set_y(ui_Color1g, 15);
             //Hiển thị
             // lv_obj_set_style_bg_opa(ui_Color11g, 255, LV_PART_MAIN | LV_STATE_DEFAULT);

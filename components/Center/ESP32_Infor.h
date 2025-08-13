@@ -86,10 +86,12 @@ typedef struct {
 typedef struct {
     char status_card[6];//1
     char serial[MAX_EPC_LENGTH];//2
-    ColorPairs colors;//3
-    char group[8];//4
-    char Sa[12];//5
-    char comment[20];//6
+    char temp_color[6];//3
+    ColorPairs colors;//4
+    char group[8];//5
+    char Sa[12];//6
+    char wire_type[3];//7
+    char comment[20];//8
 } wire_infor;
 #endif
 
