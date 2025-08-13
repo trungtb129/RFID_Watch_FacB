@@ -397,8 +397,18 @@ void lcd_set_daydien_text(wire_infor* DayDien, uint8_t index, Work_Mode Mode) {
         }
 
         char color_buf[10]; // đủ lớn để chứa A:B
-        concat_three_with_colon( DayDien->colors.color->main_color,"-", DayDien->colors.color->sub_color,  color_buf, sizeof(color_buf));
+        
+        if(strcmp((DayDien->colors.color->main_color),(DayDien->colors.color->sub_color)) == 0)
+        {
+            concat_three_with_colon( DayDien->colors.color->main_color,"", "",  color_buf, sizeof(color_buf));
+        }
+
+        else if (strcmp((DayDien->colors.color->main_color),(DayDien->colors.color->sub_color)) != 0)
+        {
+            concat_three_with_colon( DayDien->colors.color->main_color,"-", DayDien->colors.color->sub_color,  color_buf, sizeof(color_buf));
+        }
         char buffer[10]; // đủ lớn để chứa A:B
+
         concat_with_colon( DayDien->wire_type, color_buf, buffer, sizeof(buffer));
 
         lv_label_set_text(ui_ColorText, buffer);

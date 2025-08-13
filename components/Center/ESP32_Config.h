@@ -51,7 +51,7 @@ Sumi wifi
 #define UHF_ESP_STATIC_GW "10.0.12.1"
 #endif //RFID FAC_A
 
-#if 0//RFID FAC_B
+#if 1//RFID FAC_B
 #define ESP_WIFI_SSID "SHWS-RFID_Test"
 #define ESP_WIFI_PASS "RFID_FB_25@"
 
@@ -61,7 +61,7 @@ Sumi wifi
 #define HOST_IP_ADDR "10.0.12.2"
 // #define HOST_IP_ADDR "10.0.12.51"
 
-#define PORT 8888
+#define PORT 10001
 
 #define UHF_ESP_USING_STATIC_IP 1
 // #define UHF_ESP_STATIC_IP "10.0.12.30"
@@ -93,7 +93,7 @@ Sumi wifi
 #define UHF_ESP_STATIC_GW "10.0.12.1"
 #endif//RFID FAC_B
 
-#if 01
+#if 0
 #define ESP_WIFI_SSID "CTY ROBOTICS AUBOT"
 #define ESP_WIFI_PASS "123456789"
 
